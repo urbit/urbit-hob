@@ -1,8 +1,8 @@
-name:           hob
+name:           urbit-hob
 version:        0.1.0
 description:    Hoon-style atom manipulation and printing functions
-homepage:       https://github.com/urbit/hob#readme
-bug-reports:    https://github.com/urbit/hob/issues
+homepage:       https://github.com/urbit/urbit-hob#readme
+bug-reports:    https://github.com/urbit/urbit-hob/issues
 author:         Jared Tobin
 maintainer:     jared@jtobin.io
 copyright:      2019 Jared Tobin
@@ -13,7 +13,7 @@ cabal-version:  >= 1.10
 
 source-repository head
   type: git
-  location: https://github.com/urbit/hob
+  location: https://github.com/urbit/urbit-hob
 
 library
   default-language: Haskell2010
