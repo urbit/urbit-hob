@@ -25,6 +25,8 @@ library
       Ob
   build-depends:
       base        >= 4.7  && < 6
-    , bytestring  >= 0.10 && < 0.11
-    , murmur3     >= 1.0  && < 1.1
+    , bytestring  >= 0.10 && < 1
+    , containers  >= 0.5  && < 1
+    , murmur3     >= 1.0  && < 2
+    , text        >= 1.2  && < 2
 
