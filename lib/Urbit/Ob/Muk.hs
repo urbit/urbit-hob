@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -Wall #-}
 
-module Muk (
+module Urbit.Ob.Muk (
     muk
   ) where
 
@@ -10,6 +10,7 @@ import Data.Char
 import Data.Word (Word32)
 import qualified Data.Hash.Murmur as M
 
+-- | A specific murmur3 variant.
 muk :: Word32 -> Word32 -> Word32
 muk syd key = M.murmur3 syd kee where
   kee = chr lo `B8.cons` chr hi `B8.cons` mempty

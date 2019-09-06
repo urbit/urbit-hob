@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -Wall #-}
 
-module Ob (
+module Urbit.Ob.Ob (
     fein
   , fynd
   , feis
@@ -14,19 +14,8 @@ module Ob (
 
 import Data.Bits
 import Data.Word (Word32)
-import Muk (muk)
+import Urbit.Ob.Muk (muk)
 import Prelude hiding (tail)
-
--- | A PRF for j in [0, .., 3]
-capF :: Int -> Word32 -> Word32
-capF j key = fromIntegral (muk seed key) where
-  seed = raku !! fromIntegral j
-  raku = [
-      0xb76d5eed
-    , 0xee281300
-    , 0x85bcae01
-    , 0x4b387af7
-    ]
 
 -- | Conceal structure v3.
 fein :: (Integral a, Bits a) => a -> a
@@ -72,6 +61,18 @@ feis = capFe 4 65535 65536 0xFFFFFFFF capF
 tail :: Word32 -> Word32
 tail = capFen 4 65535 65536 0xFFFFFFFF capF
 
+-- | A PRF for j in [0, .., 3]
+capF :: Int -> Word32 -> Word32
+capF j key = fromIntegral (muk seed key) where
+  seed = raku !! fromIntegral j
+  raku = [
+      0xb76d5eed
+    , 0xee281300
+    , 0x85bcae01
+    , 0x4b387af7
+    ]
+
+-- | 'Fe' in B&R (2002).
 capFe
   :: Integral a
   => Int
@@ -87,6 +88,7 @@ capFe r a b k f m
   where
     c = fe r a b f m
 
+-- | 'fe' in B&R (2002).
 fe
   :: Integral a
   => Int
@@ -112,6 +114,7 @@ fe r a b f m = loop 1 capL capR where
                   else (ell + eff) `mod` b
         in  loop (succ j) arr tmp
 
+-- | 'Fen' in B&R (2002).
 capFen
   :: Integral a
   => Int
@@ -127,6 +130,7 @@ capFen r a b k f m
   where
     c = fen r a b f m
 
+-- | 'fen' in B&R (2002).
 fen
   :: Integral a
   => Int

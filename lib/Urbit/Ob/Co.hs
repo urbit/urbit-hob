@@ -2,34 +2,66 @@
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Co (
+module Urbit.Ob.Co (
     patp
+  , render
   ) where
 
 import qualified Data.IntMap.Strict as IMS
-import Ob (fein)
+import Data.Maybe (fromMaybe)
+import Urbit.Ob.Ob (fein)
 import qualified Data.Text as T
+import qualified Data.Vector.Unboxed as VU
+import Data.Word (Word8)
 
-newtype Patp = Patp T.Text
-  deriving Eq
+newtype Patp = Patp (VU.Vector (Word8, Word8))
+  deriving (Eq, Show)
 
-instance Show Patp where
-  show = T.unpack . render
-
+-- | Render a Patp value as Text.
 render :: Patp -> T.Text
-render (Patp p) = T.cons '~' p
+render (Patp p) = rendered where
+  folded
+    | VU.length p == 1 = case VU.unsafeHead p of
+        (0, su) -> fromMaybe (internalErr "render") $ do
+          suf <- IMS.lookup (fromIntegral su) suffixes
+          return (T.cons '~' suf)
 
-patp :: Int -> Maybe Patp
+        _ -> VU.foldl' alg mempty p
+
+    | otherwise = VU.foldl' alg mempty p
+
+  rendered = case T.uncons folded of
+    Just (_, pp) -> T.cons '~' pp
+    Nothing      -> internalErr "render"
+
+  alg acc x = acc <> "-" <> glue x
+
+  glue (pr, su) = fromMaybe (internalErr "render") $ do
+    pre <- IMS.lookup (fromIntegral pr) prefixes
+    suf <- IMS.lookup (fromIntegral su) suffixes
+    return (pre <> suf)
+
+internalErr :: String -> a
+internalErr fn = error $
+  "urbit-hob (" <> fn <> "): internal error -- please report this as a bug!"
+
+-- | Convert a nonnegative Int to a Patp value.
+patp :: Int -> Patp
 patp n
-    | dyx <= 1  = fmap Patp (IMS.lookup sxz suffixes)
-    | otherwise = fmap Patp (loop sxz 0 mempty)
+    | n >= 0    = _patp
+    | otherwise = error "urbit-hob (patp): input out of range"
   where
+    _patp
+      | dyx <= 1  = Patp (VU.singleton (0, fromIntegral sxz))
+      | otherwise = Patp (loop sxz 0 mempty)
+
     sxz = fein n
     dyx = met 3 sxz
     dyy = met 4 sxz
 
-    loop !tsxz !timp !trep = do
+    loop !tsxz !timp !acc =
       let lug = end 4 1 tsxz
+          -- FIXME index
           etc =
             if   timp `mod` 4 /= 0
             then "-"
@@ -37,14 +69,13 @@ patp n
                  then ""
                  else "--"
 
-      pre <- IMS.lookup (rsh 3 1 lug) prefixes
-      suf <- IMS.lookup (end 3 1 lug) suffixes
+          pre = rsh 3 1 lug
+          suf = end 3 1 lug
+          res = VU.cons (fromIntegral pre, fromIntegral suf) acc
 
-      let res = pre <> suf <> etc <> trep
-
-      if   timp == dyy
-      then return trep
-      else loop (rsh 4 1 tsxz) (succ timp) res
+      in  if   timp == dyy
+          then acc
+          else loop (rsh 4 1 tsxz) (succ timp) res
 
 prefixes :: IMS.IntMap T.Text
 prefixes = IMS.fromList $ zip [0..]
