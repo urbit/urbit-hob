@@ -1,0 +1,30 @@
+name:           hob
+version:        0.1.0
+description:    Hoon-style atom manipulation and printing functions
+homepage:       https://github.com/urbit/hob#readme
+bug-reports:    https://github.com/urbit/hob/issues
+author:         Jared Tobin
+maintainer:     jared@jtobin.io
+copyright:      2019 Jared Tobin
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+cabal-version:  >= 1.10
+
+source-repository head
+  type: git
+  location: https://github.com/urbit/hob
+
+library
+  default-language: Haskell2010
+  hs-source-dirs:   src
+  other-modules:    Paths_hob
+  exposed-modules:
+      Co,
+      Muk,
+      Ob
+  build-depends:
+      base        >= 4.7  && < 6
+    , bytestring  >= 0.10 && < 0.11
+    , murmur3     >= 1.0  && < 1.1
+
