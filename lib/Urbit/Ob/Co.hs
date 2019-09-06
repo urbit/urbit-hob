@@ -4,69 +4,67 @@
 
 module Urbit.Ob.Co (
     Patp
+  , render
 
   , patp
   , fromPatp
-
-  , render
   ) where
 
 import qualified Data.ByteString as BS
 import qualified Data.IntMap.Strict as IMS
-import Data.List (foldl')
 import Data.Maybe (fromMaybe)
 import qualified Data.Serialize as C
 import qualified Data.Text as T
-import Data.Word (Word8, Word32)
+import Data.Word (Word8, Word16, Word)
 import Urbit.Ob.Ob (fein, fynd)
-
-internalErr :: String -> a
-internalErr fn = error $
-  "urbit-hob (" <> fn <> "): internal error -- please report this as a bug!"
 
 newtype Patp = Patp BS.ByteString
   deriving (Eq, Show)
 
-render :: Patp -> T.Text
-render (Patp p) = prefixed where
-  prefixed = T.cons '~' encoded
-
-  encoded = foldl' alg mempty pruned where
-    alg acc (idx, x) = mappend acc $
-      fromMaybe (internalErr "render") . IMS.lookup (fromIntegral x) $
-        if   even idx
-        then prefixes
-        else suffixes
-
-  pruned =
-    let indexed = zip [0..] (BS.unpack p)
-        len     = BS.length p
-        padding (idx, val) =
-             idx /= pred len
-          && val == 0
-    in  dropWhile padding indexed
-
 -- | Convert a nonnegative Int to a Patp value.
-patp :: Word32 -> Patp
+patp :: Int -> Patp
 patp n
     | n >= 0    = _patp
     | otherwise = error "urbit-hob (patp): input out of range"
   where
-    _patp
-      | dyx <= 1  = Patp (BS.cons 0 (BS.singleton (fromIntegral sxz :: Word8)))
-      | otherwise = Patp encoded
+    sxz  = fein n
+    sxz8 = fromIntegral sxz :: Word8
 
-    -- FIXME simplify
-    sxz = fromIntegral (fein n) :: Word32
-    dyx = met 3 sxz
-    encoded = C.encode sxz
+    _patp
+      | met 3 sxz <= 1 = Patp (BS.cons 0 (BS.singleton sxz8))
+      | otherwise      = Patp (C.encode (fromIntegral sxz :: Word))
 
 -- | Convert a Patp value to an Int.
-fromPatp :: Patp -> Word32
+fromPatp :: Patp -> Int
 fromPatp (Patp p) = decoded where
-  decoded = case C.decode p of
-    Left _  -> internalErr "fromPatp"
-    Right x -> fynd x
+  decoded = case BS.length p of
+    2 -> case C.decode p :: Either String Word16 of
+      Left _  -> internalErr "fromPatp"
+      Right x -> fynd (fromIntegral x)
+    _ -> case C.decode p :: Either String Word of
+      Left _  -> internalErr "fromPatp"
+      Right x -> fynd (fromIntegral x)
+
+-- | Render a Patp value as Text.
+render :: Patp -> T.Text
+render (Patp p) = prefixed where
+  grab = fromMaybe (internalErr "render")
+
+  prefixed = case T.uncons encoded of
+    Just ('-', pp) -> T.cons '~' pp
+    Just _         -> T.cons '~' encoded
+    _              -> internalErr "render"
+
+  encoded = foldr alg mempty pruned where
+    alg (idx, x) acc
+      | odd idx   =        grab (IMS.lookup (fromIntegral x) suffixes) <> acc
+      | otherwise = "-" <> grab (IMS.lookup (fromIntegral x) prefixes) <> acc
+
+  pruned =
+    let len = BS.length p
+        indexed = zip [len, pred len..] (BS.unpack p)
+        padding (idx, val) = idx /= 1 && val == 0
+    in  dropWhile padding indexed
 
 prefixes :: IMS.IntMap T.Text
 prefixes = IMS.fromList $ zip [0..]
@@ -129,4 +127,8 @@ met = loop 0 where
   loop !acc a !b
     | b == 0    = acc
     | otherwise = loop (succ acc) a (rsh a 1 b)
+
+internalErr :: String -> a
+internalErr fn = error $
+  "urbit-hob (" <> fn <> "): internal error -- please report this as a bug!"
 
