@@ -32,3 +32,6 @@ Here's a quick example:
 15663360
 ```
 
+## See also
+
+* [urbit-ob](https://github.com/urbit/urbit-ob) -- JavaScript bindings
