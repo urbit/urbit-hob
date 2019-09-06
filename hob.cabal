@@ -6,7 +6,7 @@ bug-reports:    https://github.com/urbit/hob/issues
 author:         Jared Tobin
 maintainer:     jared@jtobin.io
 copyright:      2019 Jared Tobin
-license:        BSD3
+license:        MIT
 license-file:   LICENSE
 build-type:     Simple
 cabal-version:  >= 1.10
