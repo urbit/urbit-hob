@@ -4,18 +4,23 @@
 
 module Urbit.Ob.Co (
     Patp
-  , render
-
   , patp
   , fromPatp
+
+  -- TODO WIP
+  , failures
+  , roundTrip
+
+  , render
+  , unRender
+  , toText
+  , fromText
   ) where
 
 import qualified Data.ByteString as BS
-import qualified Data.IntMap.Strict as IMS
-import Data.Maybe (fromMaybe)
 import qualified Data.Serialize as C
 import qualified Data.Text as T
-import Data.Word (Word8, Word16, Word)
+import Data.Word (Word8, Word16, Word64)
 import Urbit.Ob.Ob (fein, fynd)
 import Numeric.Natural
 import qualified Data.Vector as V
@@ -24,43 +29,86 @@ newtype Patp = Patp BS.ByteString
   deriving (Eq, Show)
 
 -- | Convert a nonnegative Int to a Patp value.
-patp :: Int -> Patp
-patp n
-    | n >= 0    = _patp
-    | otherwise = error "urbit-hob (patp): input out of range"
+patp :: Word64 -> Patp
+patp n = _patp
   where
     sxz  = fein n
     sxz8 = fromIntegral sxz :: Word8
 
     _patp
-      | met 3 sxz <= 1 = Patp (BS.cons 0 (BS.singleton sxz8))
-      | otherwise      = Patp (C.encode (fromIntegral sxz :: Word))
+      | met 3 sxz <= 1 = Patp (BS.pack [0, sxz8])
+      | otherwise      = Patp (C.encode sxz)
 
 -- | Convert a Patp value to an Int.
-fromPatp :: Patp -> Int
+fromPatp :: Patp -> Word64
 fromPatp (Patp p) = decoded where
   decoded = case BS.length p of
     2 -> case C.decode p :: Either String Word16 of
       Left _  -> internalErr "fromPatp"
       Right x -> fynd (fromIntegral x)
-    _ -> case C.decode p :: Either String Word of
+    _ -> case C.decode p :: Either String Word64 of
       Left _  -> internalErr "fromPatp"
       Right x -> fynd (fromIntegral x)
 
--- | Render a Patp value as Text.
 render :: Patp -> T.Text
-render (Patp p) = prefixed where
-  grab = fromMaybe (internalErr "render")
+render = T.cons '~' . toText
 
-  prefixed = case T.uncons encoded of
-    Just ('-', pp) -> T.cons '~' pp
-    Just _         -> T.cons '~' encoded
-    _              -> internalErr "render"
+unRender :: T.Text -> Maybe Patp
+unRender = go . T.uncons
+  where
+    go Nothing            = Nothing
+    go (Just ('~', ship)) = fromText ship
+    go (Just _          ) = Nothing
+
+roundTrip :: Word64 -> Bool
+roundTrip int = Just int == go int
+  where
+    go = fmap fromPatp . unRender . render . patp
+
+failures :: [Word64]
+failures = fmap snd
+          $ filter (not . fst)
+          $ fmap (\x -> (roundTrip x, x))
+          $ [0..2^63]
+
+fromText :: T.Text -> Maybe Patp
+fromText = fmap (Patp . pad . BS.pack) . go . fmap syllables . groups
+  where
+    go []           = pure []
+    go ([s]   : gs) = do x <- fromSuffix s
+                         (x:) <$> go gs
+    go ([p,s] : gs) = do x <- fromPrefix p
+                         y <- fromSuffix s
+                         ([x,y] <>) <$> go gs
+    go _            = Nothing
+
+    pad bs =
+      let len = BS.length bs
+      in case len of
+           1 -> BS.cons 0 bs
+           _ -> BS.replicate (8-len) 0 <> bs
+
+groups :: T.Text -> [T.Text]
+groups = T.splitOn "-"
+
+syllables :: T.Text -> [T.Text]
+syllables = go . T.unpack where
+  go []       = []
+  go ('-':cs) = go cs
+  go cs       = T.pack (take 3 cs) : go (drop 3 cs)
+
+-- | Render a Patp value as Text.
+toText :: Patp -> T.Text
+toText (Patp p) = stripped where
+  stripped = case T.uncons encoded of
+    Just ('-', pp) -> pp
+    Just _         -> encoded
+    _              -> ""
 
   encoded = foldr alg mempty pruned where
     alg (idx, x) acc
-      | odd idx   =        grab (V.unsafeIndex (fromIntegral x) suffixes) <> acc
-      | otherwise = "-" <> grab (V.unsafeIndex (fromIntegral x) prefixes) <> acc
+      | odd idx   =        suffix x <> acc
+      | otherwise = "-" <> prefix x <> acc
 
   pruned =
     let len = BS.length p
@@ -118,6 +166,23 @@ suffixes = V.fromList
   ,"lyr","tes","mud","nyt","byr","sen","weg","fyr","mur","tel","rep","teg"
   ,"pec","nel","nev","fes"]
 
+suffix :: Word8 -> T.Text
+suffix = V.unsafeIndex suffixes . fromIntegral
+
+prefix :: Word8 -> T.Text
+prefix = V.unsafeIndex prefixes . fromIntegral
+
+{-
+    I've tested this before, and using a case expression is by far the
+    fastest way of doing this. This is a little slow, but is simple and
+    should be fine for now.
+-}
+fromPrefix :: T.Text -> Maybe Word8
+fromPrefix txt = fromIntegral <$> V.elemIndex txt prefixes
+
+fromSuffix :: T.Text -> Maybe Word8
+fromSuffix txt = fromIntegral <$> V.elemIndex txt suffixes
+
 bex :: Integral a => a -> a
 bex = (^) 2
 
@@ -133,4 +198,3 @@ met = loop 0 where
 internalErr :: String -> a
 internalErr fn = error $
   "urbit-hob (" <> fn <> "): internal error -- please report this as a bug!"
-
