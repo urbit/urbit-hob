@@ -1,8 +1,8 @@
 # urbit-hob
 
-[![Build Status](https://secure.travis-ci.org/urbit/urbit-hob.png)](http://travis-ci.org/urbit/urbit-hob)
+[![Build Status](https://travis-ci.org/urbit/urbit-hob.svg?branch=master)](https://travis-ci.org/urbit/urbit-hob)
 [![Hackage Version](https://img.shields.io/hackage/v/urbit-hob.svg)](http://hackage.haskell.org/package/urbit-hob)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 Utilities for phonetic base wrangling.
 
