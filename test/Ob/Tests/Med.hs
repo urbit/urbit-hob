@@ -1,4 +1,6 @@
-module Main where
+module Ob.Tests.Med (
+    tests
+  ) where
 
 import Control.Monad (unless)
 import Data.List (nub, foldl')
@@ -52,21 +54,20 @@ feis = Ob.capFe 4 a b c eff
 
 tail = Ob.capFen 4 a b c eff
 
-main :: IO ()
-main = do
+tests :: Spec
+tests = do
   let perm = fmap feis emm
       inv  = fmap tail perm
       distincts = nub perm
 
-  hspec $ do
-    describe "feis" $ do
-      it "produces distinct elements" $
-        length distincts `shouldBe` length perm
+  describe "feis" $ do
+    it "produces distinct elements" $
+      length distincts `shouldBe` length perm
 
-      it "permutes successfully" $
-        foldl' (\acc x -> x `elem` emm && acc) True perm `shouldBe` True
+    it "permutes successfully" $
+      foldl' (\acc x -> x `elem` emm && acc) True perm `shouldBe` True
 
-    describe "tail" $
-      it "inverts feis" $
-        emm `shouldBe` inv
+  describe "tail" $
+    it "inverts feis" $
+      emm `shouldBe` inv
 

@@ -64,22 +64,13 @@ library
     , text        >= 1.2  && < 2
     , vector      >= 0.12 && < 1
 
-Test-suite small
+Test-suite ob
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
-  main-is:             Small.hs
-  default-language:    Haskell2010
-  ghc-options:
-    -rtsopts
-  build-depends:
-      base
-    , hspec
-    , urbit-hob
-
-Test-suite medium
-  type:                exitcode-stdio-1.0
-  hs-source-dirs:      test
-  main-is:             Med.hs
+  main-is:             Ob.hs
+  other-modules:
+    Ob.Tests.Small
+    Ob.Tests.Med
   default-language:    Haskell2010
   ghc-options:
     -rtsopts
