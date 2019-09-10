@@ -73,6 +73,7 @@ Test-suite small
     -rtsopts
   build-depends:
       base
+    , hspec
     , urbit-hob
 
 Test-suite medium
@@ -84,5 +85,6 @@ Test-suite medium
     -rtsopts
   build-depends:
       base
+    , hspec
     , urbit-hob
 

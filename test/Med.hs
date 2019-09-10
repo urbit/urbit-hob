@@ -3,7 +3,7 @@ module Main where
 import Control.Monad (unless)
 import Data.List (nub, foldl')
 import Prelude hiding (tail)
-import System.Exit (exitSuccess, exitFailure)
+import Test.Hspec
 import qualified Urbit.Ob.Ob as Ob
 
 a, b, c :: Int
@@ -58,14 +58,15 @@ main = do
       inv  = fmap tail perm
       distincts = nub perm
 
-  let distinctElems = length distincts == length perm
-  unless distinctElems exitFailure
+  hspec $ do
+    describe "feis" $ do
+      it "produces distinct elements" $
+        length distincts `shouldBe` length perm
 
-  let permuteSuccessful = foldl' (\acc x -> x `elem` emm && acc) True perm
-  unless permuteSuccessful exitFailure
+      it "permutes successfully" $
+        foldl' (\acc x -> x `elem` emm && acc) True perm `shouldBe` True
 
-  let tailInvertsFeis = emm == inv
-  unless tailInvertsFeis exitFailure
-
-  exitSuccess
+    describe "tail" $
+      it "inverts feis" $
+        emm `shouldBe` inv
 
