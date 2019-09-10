@@ -82,3 +82,17 @@ Test-suite ob
     , QuickCheck
     , urbit-hob
 
+Test-suite co
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Co.hs
+  default-language:    Haskell2010
+  ghc-options:
+    -rtsopts
+  build-depends:
+      base
+    , hspec
+    , hspec-core
+    , QuickCheck
+    , urbit-hob
+
