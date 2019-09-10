@@ -124,7 +124,7 @@ rsh a b c = c `div` bex (bex a * b)
 
 met :: Integral a => a -> a -> a
 met = loop 0 where
-  loop !acc a !b
+  loop !acc a b
     | b == 0    = acc
     | otherwise = loop (succ acc) a (rsh a 1 b)
 

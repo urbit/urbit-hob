@@ -1,4 +1,5 @@
 {-# OPTIONS_GHC -Wall #-}
+{-# LANGUAGE BangPatterns #-}
 
 module Urbit.Ob.Ob (
     fein
@@ -20,7 +21,7 @@ import Prelude hiding (tail)
 -- | Conceal structure v3.
 fein :: (Integral a, Bits a) => a -> a
 fein = loop where
-  loop pyn =
+  loop !pyn =
     let lo  = pyn .&. 0xFFFFFFFF
         hi  = pyn .&. 0xFFFFFFFF00000000
         p32 = fromIntegral pyn :: Word32
@@ -33,7 +34,7 @@ fein = loop where
 -- | Restore structure v3.
 fynd :: (Integral a, Bits a) => a -> a
 fynd = loop where
-  loop cry =
+  loop !cry =
     let lo  = cry .&. 0xFFFFFFFF
         hi  = cry .&. 0xFFFFFFFF00000000
         c32 = fromIntegral cry :: Word32
@@ -100,7 +101,7 @@ fe
 fe r a b f m = loop 1 capL capR where
   capL = m `mod` a
   capR = m `div` a
-  loop j ell arr
+  loop j !ell !arr
     | j > r =
         if   odd r
         then a * arr + ell
@@ -160,7 +161,7 @@ fen r a b f m = loop r capL capR where
     then ale
     else ahh
 
-  loop j ell arr
+  loop j !ell !arr
     | j < 1     = a * arr + ell
     | otherwise =
         let eff = f (pred j) ell
