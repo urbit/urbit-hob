@@ -75,3 +75,14 @@ Test-suite small
       base
     , urbit-hob
 
+Test-suite medium
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Med.hs
+  default-language:    Haskell2010
+  ghc-options:
+    -rtsopts
+  build-depends:
+      base
+    , urbit-hob
+
