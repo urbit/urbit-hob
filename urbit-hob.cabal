@@ -71,11 +71,14 @@ Test-suite ob
   other-modules:
     Ob.Tests.Small
     Ob.Tests.Med
+    Ob.Tests.Property
   default-language:    Haskell2010
   ghc-options:
     -rtsopts
   build-depends:
       base
     , hspec
+    , hspec-core
+    , QuickCheck
     , urbit-hob
 
