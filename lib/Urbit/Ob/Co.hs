@@ -10,8 +10,7 @@ module Urbit.Ob.Co (
   ) where
 
 import qualified Data.ByteString as BS
-import qualified Data.IntMap.Strict as IMS
-import Data.Maybe (fromMaybe)
+import qualified Data.Vector as V
 import qualified Data.Serialize as C
 import qualified Data.Text as T
 import Data.Word (Word8, Word16, Word)
@@ -47,7 +46,8 @@ fromPatp (Patp p) = decoded where
 -- | Render a Patp value as Text.
 render :: Patp -> T.Text
 render (Patp p) = prefixed where
-  grab = fromMaybe (internalErr "render")
+  prefix = V.unsafeIndex prefixes . fromIntegral
+  suffix = V.unsafeIndex suffixes . fromIntegral
 
   prefixed = case T.uncons encoded of
     Just ('-', pp) -> T.cons '~' pp
@@ -56,8 +56,8 @@ render (Patp p) = prefixed where
 
   encoded = foldr alg mempty pruned where
     alg (idx, x) acc
-      | odd idx   =        grab (IMS.lookup (fromIntegral x) suffixes) <> acc
-      | otherwise = "-" <> grab (IMS.lookup (fromIntegral x) prefixes) <> acc
+      | odd idx   =        suffix x <> acc
+      | otherwise = "-" <> prefix x <> acc
 
   pruned =
     let len = BS.length p
@@ -65,8 +65,8 @@ render (Patp p) = prefixed where
         padding (idx, val) = idx /= 1 && val == 0
     in  dropWhile padding indexed
 
-prefixes :: IMS.IntMap T.Text
-prefixes = IMS.fromList $ zip [0..]
+prefixes :: V.Vector T.Text
+prefixes = V.fromList
   ["doz","mar","bin","wan","sam","lit","sig","hid","fid","lis","sog","dir"
   ,"wac","sab","wis","sib","rig","sol","dop","mod","fog","lid","hop","dar"
   ,"dor","lor","hod","fol","rin","tog","sil","mir","hol","pas","lac","rov"
@@ -90,8 +90,8 @@ prefixes = IMS.fromList $ zip [0..]
   ,"lap","tal","pit","nam","bon","ros","ton","fod","pon","sov","noc","sor"
   ,"lav","mat","mip","fip"]
 
-suffixes :: IMS.IntMap T.Text
-suffixes = IMS.fromList $ zip [0..]
+suffixes :: V.Vector T.Text
+suffixes = V.fromList
   ["zod","nec","bud","wes","sev","per","sut","let","ful","pen","syt","dur"
   ,"wep","ser","wyl","sun","ryp","syx","dyr","nup","heb","peg","lup","dep"
   ,"dys","put","lug","hec","ryt","tyv","syd","nex","lun","mep","lut","sep"
