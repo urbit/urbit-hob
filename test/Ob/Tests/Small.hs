@@ -34,6 +34,7 @@ tests = do
   let emm  = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
       perm = fmap feis emm
       inv  = fmap tail perm
+      rinv = fmap feis inv
       distincts = nub perm
 
   describe "feis" $ do
@@ -42,6 +43,10 @@ tests = do
 
     it "permutes successfully" $
       foldl' (\acc x -> x `elem` emm && acc) True perm `shouldBe` True
+
+  describe "feis" $
+    it "inverts tail" $
+      rinv `shouldBe` perm
 
   describe "tail" $
     it "inverts feis" $
