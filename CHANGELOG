@@ -1,4 +1,8 @@
 # Changelog
 
+- 0.1.1 (2019-09-13)
+    * Fixes an overflow bug (urbit/urbit-hob#2) that resulted in Urbit.Ob.feis
+      returning incorrect results on very rare inputs.
+
 - 0.1.0 (2019-09-06)
     * Initial release.
