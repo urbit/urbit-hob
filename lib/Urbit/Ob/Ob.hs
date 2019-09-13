@@ -100,11 +100,9 @@ fe r a b f m = loop 1 capL capR where
   capR = m `div` a
   loop j !ell !arr
     | j > r =
-        if   odd r
+        if   odd r || arr == a
         then a * arr + ell
-        else if   arr == a
-             then a * arr + ell
-             else a * ell + arr
+        else a * ell + arr
     | otherwise =
         let eff   = f (pred j) arr
             -- NB (jtobin):
