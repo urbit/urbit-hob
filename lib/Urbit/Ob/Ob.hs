@@ -13,7 +13,7 @@ module Urbit.Ob.Ob (
   ) where
 
 import Data.Bits
-import Data.Word (Word32, Word64)
+import Data.Word (Word32)
 import Urbit.Ob.Muk (muk)
 import Prelude hiding (tail)
 
@@ -74,14 +74,13 @@ capF j key = fromIntegral (muk seed key) where
 
 -- | 'Fe' in B&R (2002).
 capFe
-  :: Integral a
-  => Int
-  -> a
-  -> a
-  -> a
-  -> (Int -> a -> a)
-  -> a
-  -> a
+  :: Int
+  -> Word32
+  -> Word32
+  -> Word32
+  -> (Int -> Word32 -> Word32)
+  -> Word32
+  -> Word32
 capFe r a b k f m
     | c < k     = c
     | otherwise = fe r a b f c
@@ -90,13 +89,12 @@ capFe r a b k f m
 
 -- | 'fe' in B&R (2002).
 fe
-  :: Integral a
-  => Int
-  -> a
-  -> a
-  -> (Int -> a -> a)
-  -> a
-  -> a
+  :: Int
+  -> Word32
+  -> Word32
+  -> (Int -> Word32 -> Word32)
+  -> Word32
+  -> Word32
 fe r a b f m = loop 1 capL capR where
   capL = m `mod` a
   capR = m `div` a
@@ -109,23 +107,28 @@ fe r a b f m = loop 1 capL capR where
              else a * ell + arr
     | otherwise =
         let eff   = f (pred j) arr
-            lfs   = (fromIntegral ell :: Word64) + (fromIntegral eff :: Word64)
-            tmp64 = if   odd j
-                    then lfs `mod` (fromIntegral a :: Word64)
-                    else lfs `mod` (fromIntegral b :: Word64)
-            tmp   = fromIntegral tmp64
+            -- NB (jtobin):
+            --
+            -- note that the "extra" modulo operators here are not redundant as
+            -- the addition of ell and eff can (silently) overflow Word32.
+            -- modulo p does not distribute over addition, but it does
+            -- "distribute modulo p," so this ensures we stay sufficiently
+            -- small.
+            tmp  = if   odd j
+                   then (ell `mod` a + eff `mod` a) `mod` a
+                   else (ell `mod` b + eff `mod` b) `mod` b
+
         in  loop (succ j) arr tmp
 
 -- | 'Fen' in B&R (2002).
 capFen
-  :: Integral a
-  => Int
-  -> a
-  -> a
-  -> a
-  -> (Int -> a -> a)
-  -> a
-  -> a
+  :: Int
+  -> Word32
+  -> Word32
+  -> Word32
+  -> (Int -> Word32 -> Word32)
+  -> Word32
+  -> Word32
 capFen r a b k f m
     | c <= k    = c
     | otherwise = fen r a b f c
@@ -134,13 +137,12 @@ capFen r a b k f m
 
 -- | 'fen' in B&R (2002).
 fen
-  :: Integral a
-  => Int
-  -> a
-  -> a
-  -> (Int -> a -> a)
-  -> a
-  -> a
+  :: Int
+  -> Word32
+  -> Word32
+  -> (Int -> Word32 -> Word32)
+  -> Word32
+  -> Word32
 fen r a b f m = loop r capL capR where
   ahh =
     if   odd r
