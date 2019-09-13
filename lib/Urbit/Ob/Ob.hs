@@ -13,7 +13,7 @@ module Urbit.Ob.Ob (
   ) where
 
 import Data.Bits
-import Data.Word (Word32)
+import Data.Word (Word32, Word64)
 import Urbit.Ob.Muk (muk)
 import Prelude hiding (tail)
 
@@ -108,10 +108,12 @@ fe r a b f m = loop 1 capL capR where
              then a * arr + ell
              else a * ell + arr
     | otherwise =
-        let eff = f (pred j) arr
-            tmp = if   odd j
-                  then (ell + eff) `mod` a
-                  else (ell + eff) `mod` b
+        let eff   = f (pred j) arr
+            lfs   = (fromIntegral ell :: Word64) + (fromIntegral eff :: Word64)
+            tmp64 = if   odd j
+                    then lfs `mod` (fromIntegral a :: Word64)
+                    else lfs `mod` (fromIntegral b :: Word64)
+            tmp   = fromIntegral tmp64
         in  loop (succ j) arr tmp
 
 -- | 'Fen' in B&R (2002).
