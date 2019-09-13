@@ -8,7 +8,6 @@ import Prelude hiding (tail)
 import Test.Hspec
 import qualified Urbit.Ob.Ob as Ob
 
-a, b, c :: Int
 a = 2 ^ 4 - 1
 b = 2 ^ 4
 c = a * b
@@ -32,7 +31,7 @@ emm = [
   ]
 
 
-eff _ m = v0 !! m where
+eff _ m = v0 !! fromIntegral m where
   v0 = [
     106,  54,  57, 110, 216, 157,  90, 138, 148, 205, 214, 229,  25, 104, 217,  70,  16,  91,
     180, 108, 189, 176,  67, 213, 154, 194, 122, 199, 136, 140,  36,  56,  87, 112,   8,  34,

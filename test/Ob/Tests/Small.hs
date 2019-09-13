@@ -8,7 +8,6 @@ import Prelude hiding (tail)
 import Test.Hspec
 import qualified Urbit.Ob.Ob as Ob
 
-a, b, c :: Int
 a = 2 ^ 2 - 1
 b = 2 ^ 2
 c = a * b
@@ -20,10 +19,10 @@ eff j m =
       v3 = [11, 0, 3, 5, 9, 8, 6, 10, 4, 1, 2, 7]
 
   in  case j of
-        0 -> v0 !! m
-        1 -> v1 !! m
-        2 -> v2 !! m
-        _ -> v3 !! m
+        0 -> v0 !! fromIntegral m
+        1 -> v1 !! fromIntegral m
+        2 -> v2 !! fromIntegral m
+        _ -> v3 !! fromIntegral m
 
 feis = Ob.capFe 4 a b c eff
 
