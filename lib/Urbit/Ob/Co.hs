@@ -14,26 +14,23 @@ import qualified Data.Vector as V
 import qualified Data.Serialize as C
 import qualified Data.Text as T
 import Data.Word (Word8, Word16, Word)
+import Numeric.Natural (Natural)
 import Urbit.Ob.Ob (fein, fynd)
 
 newtype Patp = Patp BS.ByteString
   deriving (Eq, Show)
 
--- | Convert a nonnegative Int to a Patp value.
-patp :: Int -> Patp
+-- | Convert a Natural to a Patp value.
+patp :: Natural -> Patp
 patp n
-    | n >= 0    = _patp
-    | otherwise = error "urbit-hob (patp): input out of range"
+    | met 3 sxz <= 1 = Patp (BS.cons 0 (BS.singleton sxz8))
+    | otherwise      = Patp (C.encode (fromIntegral sxz :: Word))
   where
     sxz  = fein n
     sxz8 = fromIntegral sxz :: Word8
 
-    _patp
-      | met 3 sxz <= 1 = Patp (BS.cons 0 (BS.singleton sxz8))
-      | otherwise      = Patp (C.encode (fromIntegral sxz :: Word))
-
--- | Convert a Patp value to an Int.
-fromPatp :: Patp -> Int
+-- | Convert a Patp value to a Natural.
+fromPatp :: Patp -> Natural
 fromPatp (Patp p) = decoded where
   decoded = case BS.length p of
     2 -> case C.decode p :: Either String Word16 of
