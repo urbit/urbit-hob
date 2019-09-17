@@ -85,6 +85,9 @@ Test-suite co
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Co.hs
+  other-modules:
+    Co.Tests.Property
+    Co.Tests.Unit
   default-language:    Haskell2010
   ghc-options:
     -rtsopts
