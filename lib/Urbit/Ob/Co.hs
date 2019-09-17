@@ -13,7 +13,7 @@ import qualified Data.ByteString as BS
 import qualified Data.Vector as V
 import qualified Data.Serialize as C
 import qualified Data.Text as T
-import Data.Word (Word8, Word16, Word)
+import Data.Word (Word8, Word16)
 import Numeric.Natural (Natural)
 import Urbit.Ob.Ob (fein, fynd)
 
@@ -24,7 +24,7 @@ newtype Patp = Patp BS.ByteString
 patp :: Natural -> Patp
 patp n
     | met 3 sxz <= 1 = Patp (BS.cons 0 (BS.singleton sxz8))
-    | otherwise      = Patp (C.encode (fromIntegral sxz :: Word))
+    | otherwise      = Patp (C.encode sxz)
   where
     sxz  = fein n
     sxz8 = fromIntegral sxz :: Word8
@@ -34,11 +34,11 @@ fromPatp :: Patp -> Natural
 fromPatp (Patp p) = decoded where
   decoded = case BS.length p of
     2 -> case C.decode p :: Either String Word16 of
-      Left _  -> internalErr "fromPatp"
+      Left e  -> internalErr "fromPatp" e
       Right x -> fynd (fromIntegral x)
-    _ -> case C.decode p :: Either String Word of
-      Left _  -> internalErr "fromPatp"
-      Right x -> fynd (fromIntegral x)
+    _ -> case C.decode p :: Either String Natural of
+      Left e  -> internalErr "fromPatp" e
+      Right x -> fynd x
 
 -- | Render a Patp value as Text.
 render :: Patp -> T.Text
@@ -49,7 +49,7 @@ render (Patp p) = prefixed where
   prefixed = case T.uncons encoded of
     Just ('-', pp) -> T.cons '~' pp
     Just _         -> T.cons '~' encoded
-    _              -> internalErr "render"
+    _              -> internalErr "render" mempty
 
   encoded = foldr alg mempty pruned where
     alg (idx, x) acc
@@ -112,11 +112,8 @@ suffixes = V.fromList
   ,"lyr","tes","mud","nyt","byr","sen","weg","fyr","mur","tel","rep","teg"
   ,"pec","nel","nev","fes"]
 
-bex :: Integral a => a -> a
-bex = (^) 2
-
 rsh :: Integral a => a -> a -> a -> a
-rsh a b c = c `div` bex (bex a * b)
+rsh a b c = c `div` 2 ^ (2 ^ a * b)
 
 met :: Integral a => a -> a -> a
 met = loop 0 where
@@ -124,7 +121,11 @@ met = loop 0 where
     | b == 0    = acc
     | otherwise = loop (succ acc) a (rsh a 1 b)
 
-internalErr :: String -> a
-internalErr fn = error $
-  "urbit-hob (" <> fn <> "): internal error -- please report this as a bug!"
+internalErr :: String -> String -> a
+internalErr fn msg = error $ mconcat
+  [ "urbit-hob ("
+  , fn
+  , "): internal error -- please report this as a bug!\n"
+  , msg
+  ]
 
