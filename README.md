@@ -19,17 +19,20 @@ number, in particular, hence the 'ob' in the library's name.
 
 The library exposes two functions, `patp` and `fromPatp`, for converting
 between representations.  You can render a `patp` value via the `render`
-function.
+function, and parse one from Text via `parse`.
 
 Here's a quick example:
 
 ```
+> :set -XOverloadedStrings
 > import qualified Urbit.Ob as Ob
 > let nidsut = Ob.patp 15663360
 > Ob.render nidsut
 "~nidsut-tomdun"
 > Ob.fromPatp nidsut
 15663360
+> Ob.parse "~nidsut-tomdun"
+Right ~nidsut-tomdun
 ```
 
 ## See also
