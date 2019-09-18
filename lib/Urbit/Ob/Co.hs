@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 -- |
@@ -30,6 +31,7 @@ import qualified Data.Serialize.Extended as C
 import qualified Data.Text as T
 import qualified Data.Vector as V
 import Data.Word (Word8)
+import GHC.Generics (Generic)
 import Numeric.Natural (Natural)
 import Prelude hiding (log)
 import qualified Urbit.Ob.Ob as Ob (fein, fynd)
@@ -45,7 +47,7 @@ import qualified Urbit.Ob.Ob as Ob (fein, fynd)
 --   (It's also used for naming comets, i.e. self-signed 128-bit Urbit ships.)
 --
 newtype Patp = Patp BS.ByteString
-  deriving Eq
+  deriving (Eq, Generic)
 
 instance Show Patp where
   show = T.unpack . render

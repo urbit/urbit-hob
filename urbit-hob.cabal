@@ -50,9 +50,9 @@ library
   hs-source-dirs:   lib
 
   if flag(release)
-    ghc-options:     -Wall
+    ghc-options:     -Wall -O2
   else
-    ghc-options:     -Wall -Werror
+    ghc-options:     -Wall -Werror -O1
 
   exposed-modules:
       Urbit.Ob
@@ -105,5 +105,18 @@ Test-suite co
     , hspec-core
     , QuickCheck
     , text
+    , urbit-hob
+
+benchmark ob-bench
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      bench
+  main-is:             Ob.hs
+  default-language:    Haskell2010
+  ghc-options:
+    -rtsopts -O2
+  build-depends:
+      base
+    , criterion
+    , deepseq
     , urbit-hob
 
