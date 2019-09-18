@@ -1,4 +1,17 @@
 
+-- |
+-- Module: Urbit.Ob.Muk
+-- Copyright: (c) 2019 Jared Tobin
+-- License: MIT
+--
+-- Maintainer: Jared Tobin <jared@jtobin.io>
+-- Stability: unstable
+-- Portability: ghc
+--
+-- A specific murmur3 variant.
+--
+-- Analogous to +muk in hoon.hoon.
+
 module Urbit.Ob.Muk (
     muk
   ) where

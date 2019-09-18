@@ -1,5 +1,18 @@
 {-# LANGUAGE OverloadedStrings #-}
 
+-- |
+-- Module: Urbit.Ob.Co
+-- Copyright: (c) 2019 Jared Tobin
+-- License: MIT
+--
+-- Maintainer: Jared Tobin <jared@jtobin.io>
+-- Stability: unstable
+-- Portability: ghc
+--
+-- General functions for atom printing.
+--
+-- Roughly analogous to the +co arm in hoon.hoon.
+
 module Urbit.Ob.Co (
     Patp
 
@@ -21,21 +34,54 @@ import Numeric.Natural (Natural)
 import Prelude hiding (log)
 import qualified Urbit.Ob.Ob as Ob (fein, fynd)
 
--- | A patp type.
+-- | Hoon's \@p encoding.
 --
---   Bytes are stored little-endian.
+--   This encoding is an /obfuscated/ representation of some underlying number,
+--   but a pronounceable, memorable, and unique one.
+--
+--   The representation exists for any natural number, but it's typically used
+--   only for naming Azimuth points, and thus normal 32-bit Urbit ships.
+--
+--   (It's also used for naming comets, i.e. self-signed 128-bit Urbit ships.)
+--
 newtype Patp = Patp BS.ByteString
-  deriving (Eq, Show)
+  deriving Eq
+
+instance Show Patp where
+  show = T.unpack . render
 
 unPatp :: Patp -> BS.ByteString
 unPatp (Patp p) = p
 
+-- | Convert a 'Natural' to \@p.
+--
+--   >>> patp 0
+--   ~zod
+--   >>> patp 256
+--   ~marzod
+--   >>> patp 65536
+--   ~dapnep-ronmyl
+--   >>> patp 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+--   ~fipfes-fipfes-fipfes-fipfes--fipfes-fipfes-fipfes-fipfes
+--
 patp :: Natural -> Patp
 patp = Patp . BS.reverse . C.unroll . Ob.fein
 
+-- | Convert a \@p value to its corresponding 'Natural'.
+--
+--   >>> let zod = patp 0
+--   >>> fromPatp zod
+--   0
+--
 fromPatp :: Patp -> Natural
 fromPatp = Ob.fynd . C.roll . BS.reverse . unPatp
 
+-- | Render a \@p value as 'T.Text'.
+--
+--   >>> render (patp 0)
+--   "~zod"
+--   >>> render (patp 15663360)
+--   "~nidsut-tomdun"
 render :: Patp -> T.Text
 render (Patp bs) = render' bs
 
@@ -60,6 +106,13 @@ render' bs =
           then BS.cons 0 bs
           else bs
 
+-- | Parse a \@p value existing as 'T.Text'.
+--
+--   >>> parse "~nidsut-tomdun"
+--   Right ~nidsut-tomdun
+--   > parse "~fipfes-fipfes-fipfes-doznec"
+--   Right ~fipfes-fipfes-fipfes-doznec
+--
 parse :: T.Text -> Either T.Text Patp
 parse p =
       fmap (Patp . snd)

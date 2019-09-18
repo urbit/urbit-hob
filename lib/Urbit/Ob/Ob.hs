@@ -1,5 +1,18 @@
 {-# LANGUAGE BangPatterns #-}
 
+-- |
+-- Module: Urbit.Ob.Ob
+-- Copyright: (c) 2019 Jared Tobin
+-- License: MIT
+--
+-- Maintainer: Jared Tobin <jared@jtobin.io>
+-- Stability: unstable
+-- Portability: ghc
+--
+-- Integer obfuscation functions.
+--
+-- Analogous to the +ob arm in hoon.hoon.
+
 module Urbit.Ob.Ob (
     fein
   , fynd
@@ -43,7 +56,7 @@ fynd = loop where
              then hi .|. loop lo
              else cry
 
--- | Generalised Feistel cipher
+-- | Generalised Feistel cipher.
 --
 --   See: Black and Rogaway (2002), "Ciphers with arbitrary finite domains."
 --
