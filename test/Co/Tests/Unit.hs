@@ -29,7 +29,7 @@ tests =
 
     it "matches 128-bit reference values" $ do
       let big_128_01  = 0x00000000000000010000000000000000
-          patp_128_01 = "~doznec--fipfes-fipfes-fipfes-fipfes"
+          patp_128_01 = "~doznec--dozzod-dozzod-dozzod-dozzod"
       Co.render (Co.patp big_128_01) `shouldBe` patp_128_01
 
       let big_128_02  = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF

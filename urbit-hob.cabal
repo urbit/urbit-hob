@@ -54,10 +54,13 @@ library
     , Urbit.Ob.Co
     , Urbit.Ob.Muk
     , Urbit.Ob.Ob
+
+  other-modules:
+      Data.Serialize.Extended
+
   build-depends:
       base        >= 4.7  && < 6
     , bytestring  >= 0.10 && < 1
-    , cereal      >= 0.5  && < 1
     , murmur3     >= 1.0  && < 2
     , text        >= 1.2  && < 2
     , vector      >= 0.12 && < 1
@@ -96,5 +99,6 @@ Test-suite co
     , hspec
     , hspec-core
     , QuickCheck
+    , text
     , urbit-hob
 

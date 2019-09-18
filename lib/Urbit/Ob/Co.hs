@@ -1,66 +1,78 @@
-{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Urbit.Ob.Co (
     Patp
-  , render
 
   , patp
   , fromPatp
+
+  , render
+  , parse
   ) where
 
 import qualified Data.ByteString as BS
-import qualified Data.Vector as V
-import qualified Data.Serialize as C
+import Data.Char (isAsciiLower)
+import Data.Foldable (foldrM)
+import qualified Data.Serialize.Extended as C
 import qualified Data.Text as T
-import Data.Word (Word8, Word16)
+import qualified Data.Vector as V
+import Data.Word (Word8)
 import Numeric.Natural (Natural)
-import Urbit.Ob.Ob (fein, fynd)
+import Prelude hiding (log)
+import qualified Urbit.Ob.Ob as Ob (fein, fynd)
 
+-- | A patp type.
+--
+--   Bytes are stored little-endian.
 newtype Patp = Patp BS.ByteString
   deriving (Eq, Show)
 
--- | Convert a Natural to a Patp value.
+unPatp :: Patp -> BS.ByteString
+unPatp (Patp p) = p
+
 patp :: Natural -> Patp
-patp n
-    | met 3 sxz <= 1 = Patp (BS.cons 0 (BS.singleton sxz8))
-    | otherwise      = Patp (C.encode sxz)
-  where
-    sxz  = fein n
-    sxz8 = fromIntegral sxz :: Word8
+patp = Patp . BS.reverse . C.unroll . Ob.fein
 
--- | Convert a Patp value to a Natural.
 fromPatp :: Patp -> Natural
-fromPatp (Patp p) = decoded where
-  decoded = case BS.length p of
-    2 -> case C.decode p :: Either String Word16 of
-      Left e  -> internalErr "fromPatp" e
-      Right x -> fynd (fromIntegral x)
-    _ -> case C.decode p :: Either String Natural of
-      Left e  -> internalErr "fromPatp" e
-      Right x -> fynd x
+fromPatp = Ob.fynd . C.roll . BS.reverse . unPatp
 
--- | Render a Patp value as Text.
 render :: Patp -> T.Text
-render (Patp p) = prefixed where
-  prefix = V.unsafeIndex prefixes . fromIntegral
-  suffix = V.unsafeIndex suffixes . fromIntegral
+render (Patp bs) = render' bs
 
-  prefixed = case T.uncons encoded of
-    Just ('-', pp) -> T.cons '~' pp
-    Just _         -> T.cons '~' encoded
-    _              -> internalErr "render" mempty
+render' :: BS.ByteString -> T.Text
+render' bs =
+      T.cons '~'
+    . snd
+    . BS.foldr alg (0 :: Int, mempty)
+    $ padded
+  where
+    alg val (idx, acc) =
+      let syl = if even idx then suffix val else prefix val
+          glue
+            | idx `mod` 8 == 0 = if idx == 0 then mempty else "--"
+            | even idx         = "-"
+            | otherwise        = mempty
+      in  (succ idx, syl <> glue <> acc)
 
-  encoded = foldr alg mempty pruned where
-    alg (idx, x) acc
-      | odd idx   =        suffix x <> acc
-      | otherwise = "-" <> prefix x <> acc
+    padded =
+      let len = BS.length bs
+      in  if   (odd len && len > 2) || len == 0
+          then BS.cons 0 bs
+          else bs
 
-  pruned =
-    let len = BS.length p
-        indexed = zip [len, pred len..] (BS.unpack p)
-        padding (idx, val) = idx /= 1 && val == 0
-    in  dropWhile padding indexed
+parse :: T.Text -> Either T.Text Patp
+parse p =
+      fmap (Patp . snd)
+    $ foldrM alg (0 :: Int, mempty) syls
+  where
+    alg syl (idx, acc) = do
+      word <- if even idx then fromSuffix syl else fromPrefix syl
+      return (succ idx, BS.cons word acc)
+
+    syls =
+        T.chunksOf 3
+      . T.filter isAsciiLower
+      $ p
 
 prefixes :: V.Vector T.Text
 prefixes = V.fromList
@@ -87,6 +99,16 @@ prefixes = V.fromList
   ,"lap","tal","pit","nam","bon","ros","ton","fod","pon","sov","noc","sor"
   ,"lav","mat","mip","fip"]
 
+prefix :: Integral a => a -> T.Text
+prefix = V.unsafeIndex prefixes . fromIntegral
+
+fromPrefix :: T.Text -> Either T.Text Word8
+fromPrefix syl = case V.findIndex (== syl) prefixes of
+    Nothing -> Left (msg syl)
+    Just x  -> Right (fromIntegral x :: Word8)
+  where
+    msg s = "urbit-hob (fromPrefix): invalid prefix \"" <> s <> "\""
+
 suffixes :: V.Vector T.Text
 suffixes = V.fromList
   ["zod","nec","bud","wes","sev","per","sut","let","ful","pen","syt","dur"
@@ -112,20 +134,13 @@ suffixes = V.fromList
   ,"lyr","tes","mud","nyt","byr","sen","weg","fyr","mur","tel","rep","teg"
   ,"pec","nel","nev","fes"]
 
-rsh :: Integral a => a -> a -> a -> a
-rsh a b c = c `div` 2 ^ (2 ^ a * b)
+suffix :: Integral a => a -> T.Text
+suffix = V.unsafeIndex suffixes . fromIntegral
 
-met :: Integral a => a -> a -> a
-met = loop 0 where
-  loop !acc a b
-    | b == 0    = acc
-    | otherwise = loop (succ acc) a (rsh a 1 b)
-
-internalErr :: String -> String -> a
-internalErr fn msg = error $ mconcat
-  [ "urbit-hob ("
-  , fn
-  , "): internal error -- please report this as a bug!\n"
-  , msg
-  ]
+fromSuffix :: T.Text -> Either T.Text Word8
+fromSuffix syl = case V.findIndex (== syl) suffixes of
+    Nothing -> Left (msg syl)
+    Just x  -> Right (fromIntegral x :: Word8)
+  where
+    msg s = "urbit-hob (fromSuffix): invalid suffix \"" <> s <> "\""
 

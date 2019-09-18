@@ -14,8 +14,8 @@ module Urbit.Ob.Ob (
 
 import Data.Bits
 import Data.Word (Word32)
-import Urbit.Ob.Muk (muk)
 import Prelude hiding (tail)
+import Urbit.Ob.Muk (muk)
 
 -- | Conceal structure v3.
 fein :: (Integral a, Bits a) => a -> a
