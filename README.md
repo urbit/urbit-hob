@@ -10,10 +10,11 @@ Utilities for phonetic base wrangling.
 
 Here you can primarily find functions for dealing with the "patp" *phonetic
 base* used by Urbit.  The `@p` encoding is used for naming ships; it uniquely
-represents a 32-bit number in a memorable and pronounceable fashion.
+represents a nonnegative integer (i.e. an *atom*) in a memorable and
+pronounceable fashion.
 
-The `@p` encoding is an *obfuscated* representation of an underlying 32-bit
-number, in particular, hence the 'ob' in the library's name.
+The `@p` encoding is an *obfuscated* representation of an underlying atom, in
+particular, hence the 'ob' in the library's name.
 
 ## Usage
 
