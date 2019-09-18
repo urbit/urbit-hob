@@ -1,5 +1,5 @@
 name:           urbit-hob
-version:        0.1.1
+version:        0.2.0
 synopsis:       Hoon-style atom manipulation and printing functions
 homepage:       https://github.com/urbit/urbit-hob
 bug-reports:    https://github.com/urbit/urbit-hob/issues
@@ -16,20 +16,25 @@ description:
   base used by Urbit.  The \@p encoding is used for naming ships; it uniquely
   represents a 32-bit number in a memorable and pronounceable fashion.
   .
-  The \@p encoding is an obfuscated representation of an underlying 32-bit
+  The \@p encoding is an /obfuscated/ representation of an underlying 32-bit
   number, in particular, hence the \"ob\" in the library's name.
   .
   The @Urbit.Ob@ module exposes two functions, 'patp' and 'fromPatp', for
-  converting between representations.  You can render a 'Patp' value via the
-  'render' function.
+  converting between representations.  You can also render a 'Patp' value via
+  the 'render' function, or parse one via 'parse'.
   .
-  Here's a quick example:
+  Some quick examples:
   .
-  > import qualified Urbit.Ob as Ob
-  >
-  > let nidsut = Ob.patp 15663360
-  > Ob.render nidsut   --  "~nidsut-tomdun"
-  > Ob.fromPatp nidsut --  15663360
+  >>> :set -XOverloadedStrings
+  >>> import qualified Urbit.Ob as Ob
+  >>>
+  >>> let nidsut = Ob.patp 15663360
+  >>> Ob.render nidsut
+  "~nidsut-tomdun"
+  >>> Ob.fromPatp nidsut
+  15663360
+  >>> Ob.parse "~nidsut-tomdun"
+  Right ~nidsut-tomdun
 
 source-repository head
   type: git

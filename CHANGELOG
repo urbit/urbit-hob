@@ -1,5 +1,13 @@
 # Changelog
 
+- 0.2.0 (2019-09-18)
+    * Now uses Natural internally, and thus faithfully supports Hoon atoms of
+      arbitrary size.
+    * Adds the 'parse' function for parsing @p values from Text.
+    * Drops the 'cereal' dependency.
+    * Improves error handling throughout.
+    * Improves Haddocks and in-module documentation.
+
 - 0.1.1 (2019-09-13)
     * Fixes an overflow bug (urbit/urbit-hob#2) that resulted in Urbit.Ob.feis
       returning incorrect results on very rare inputs.
