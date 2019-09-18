@@ -11,5 +11,5 @@ main =
   hspec $ do
     context "small input space" S.tests
     context "medium input space" M.tests
-    context "propert tests" P.tests
+    context "property tests" P.tests
     context "unit tests" U.tests
