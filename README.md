@@ -22,7 +22,10 @@ The library exposes two functions, `patp` and `fromPatp`, for converting
 between representations.  You can render a `patp` value via the `render`
 function, and parse one from Text via `parse`.
 
-Here's a quick example:
+The `clan` and `sein` functions, for determining a ship's class and (default)
+parent, are also exposed.
+
+Here are some quick examples:
 
 ```
 > :set -XOverloadedStrings
@@ -34,6 +37,10 @@ Here's a quick example:
 15663360
 > Ob.parse "~nidsut-tomdun"
 Right ~nidsut-tomdun
+> Ob.clan nidsut
+Planet
+> Ob.sein nidsut
+~marzod
 ```
 
 ## See also

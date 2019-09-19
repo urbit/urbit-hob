@@ -6,3 +6,4 @@ module Urbit.Ob (
 import Urbit.Ob.Co as E
 import Urbit.Ob.Muk as E
 import Urbit.Ob.Ob as E
+import Urbit.Ob.Title as E
