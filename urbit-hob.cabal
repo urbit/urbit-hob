@@ -12,16 +12,20 @@ license-file:   LICENSE
 build-type:     Simple
 cabal-version:  >= 1.10
 description:
-  Here you can primarily find functions for dealing with the \"patp\" phonetic
-  base used by Urbit.  The \@p encoding is used for naming ships; it uniquely
-  represents a 32-bit number in a memorable and pronounceable fashion.
+  Here you can primarily find functions for dealing with the \"patp\" and
+  \"patq\" /phonetic bases/ used by Urbit.  The \@p encoding is used for naming
+  ships, while the \@q encoding is used for arbitrary data; they each uniquely
+  represent an underlying natural number (or /atom/) in a memorable and
+  pronounceable fashion.
   .
-  The \@p encoding is an /obfuscated/ representation of an underlying 32-bit
-  number, in particular, hence the \"ob\" in the library's name.
+  The \@p encoding is an /obfuscated/ representation of an underlying atom, in
+  particular, hence the \"ob\" in the library's name.
   .
-  The @Urbit.Ob@ module exposes two functions, 'patp' and 'fromPatp', for
-  converting between representations.  You can also render a 'Patp' value via
-  the 'render' function, or parse one via 'parse'.
+  The @Urbit.Ob@ module exposes two families of functions, 'patp' and
+  'fromPatp', and then 'patq' and 'fromPatq', for converting between
+  representations.  You can also render a 'Patp' or 'Patq' value as 'Text' via
+  the 'renderPatp' and 'renderPatq' functions, or parse them from 'Text' via
+  'parsePatp' and 'parsePatq'.
   .
   Since \@p values represent ships, some utilities for dealing with ships are
   also exposed.  The 'clan' and 'sein' functions are useful for determining a
@@ -31,13 +35,15 @@ description:
   .
   >>> :set -XOverloadedStrings
   >>> import qualified Urbit.Ob as Ob
-  >>>
   >>> let nidsut = Ob.patp 15663360
-  >>> Ob.render nidsut
+  >>> let marzod = Ob.patq (Ob.fromPatp nidsut)
+  >>> Ob.renderPatp nidsut
   "~nidsut-tomdun"
+  >>> Ob.renderPatq marzod
+  "~mun-marzod"
   >>> Ob.fromPatp nidsut
   15663360
-  >>> Ob.parse "~nidsut-tomdun"
+  >>> Ob.parsePatp "~nidsut-tomdun"
   Right ~nidsut-tomdun
   >>> Ob.clan nidsut
   Planet

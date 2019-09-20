@@ -16,12 +16,19 @@
 
 module Urbit.Ob.Co (
     Patp
+  , Patq
 
   , patp
-  , fromPatp
+  , patq
 
-  , render
-  , parse
+  , fromPatp
+  , fromPatq
+
+  , renderPatp
+  , renderPatq
+
+  , parsePatp
+  , parsePatq
   ) where
 
 import qualified Data.ByteString as BS
@@ -46,14 +53,27 @@ import qualified Urbit.Ob.Ob as Ob (fein, fynd)
 --
 --   (It's also used for naming comets, i.e. self-signed 128-bit Urbit ships.)
 --
-newtype Patp = Patp BS.ByteString
-  deriving (Eq, Generic)
+newtype Patp = Patp {
+    unPatp :: BS.ByteString
+  } deriving (Eq, Generic)
 
 instance Show Patp where
-  show = T.unpack . render
+  show = T.unpack . renderPatp
 
-unPatp :: Patp -> BS.ByteString
-unPatp (Patp p) = p
+-- | Hoon's \@q encoding.
+--
+--   Unlike \@p, the \@q encoding is a /non-obfuscated/ representation of an
+--   atom.
+--
+--   It's typically used for serializing arbitrary data in a memorable and
+--   pronounceable fashion.
+--
+newtype Patq = Patq {
+    unPatq :: BS.ByteString
+  } deriving (Eq, Generic)
+
+instance Show Patq where
+  show = T.unpack . renderPatq
 
 -- | Convert a 'Natural' to \@p.
 --
@@ -69,6 +89,20 @@ unPatp (Patp p) = p
 patp :: Natural -> Patp
 patp = Patp . BS.reverse . C.unroll . Ob.fein
 
+-- | Convert a 'Natural' to \@q.
+--
+--   >>> patq 0
+--   ~zod
+--   >>> patp 256
+--   ~marzod
+--   >>> patp 65536
+--   ~nec-dozzod
+--   >>> patp 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+--   ~fipfes-fipfes-fipfes-fipfes-fipfes-fipfes-fipfes-fipfes
+--
+patq :: Natural -> Patq
+patq = Patq . BS.reverse . C.unroll
+
 -- | Convert a \@p value to its corresponding 'Natural'.
 --
 --   >>> let zod = patp 0
@@ -78,17 +112,68 @@ patp = Patp . BS.reverse . C.unroll . Ob.fein
 fromPatp :: Patp -> Natural
 fromPatp = Ob.fynd . C.roll . BS.reverse . unPatp
 
+-- | Convert a \@q value to its corresponding 'Natural'.
+--
+--   >>> let zod = patq 0
+--   >>> fromPatq zod
+--   0
+--
+fromPatq :: Patq -> Natural
+fromPatq = C.roll . BS.reverse . unPatq
+
 -- | Render a \@p value as 'T.Text'.
 --
---   >>> render (patp 0)
+--   >>> renderPatp (patp 0)
 --   "~zod"
---   >>> render (patp 15663360)
+--   >>> renderPatp (patp 15663360)
 --   "~nidsut-tomdun"
-render :: Patp -> T.Text
-render (Patp bs) = render' bs
+renderPatp :: Patp -> T.Text
+renderPatp (Patp bs) = render' Padding LongSpacing bs
 
-render' :: BS.ByteString -> T.Text
-render' bs =
+-- | Render a \@p value as 'T.Text'.
+--
+--   >>> renderPatq (patq 0)
+--   "~zod"
+--   >>> renderPatq (patq 15663360)
+--   "~mun-marzod"
+renderPatq :: Patq -> T.Text
+renderPatq (Patq bs) = render' NoPadding ShortSpacing bs
+
+-- | Parse a \@p value existing as 'T.Text'.
+--
+--   >>> parsePatp "~nidsut-tomdun"
+--   Right ~nidsut-tomdun
+--   > parsePatp "~fipfes-fipfes-fipfes-doznec"
+--   Right ~fipfes-fipfes-fipfes-doznec
+--
+parsePatp :: T.Text -> Either T.Text Patp
+parsePatp = fmap Patp . parse
+
+-- | Parse a \@q value existing as 'T.Text'.
+--
+--   >>> parsePatq "~nec-dozzod"
+--   Right ~nec-dozzod
+--   > parsePatq "~fipfes-fipfes-fipfes-doznec"
+--   Right ~fipfes-fipfes-fipfes-doznec
+--
+parsePatq :: T.Text -> Either T.Text Patq
+parsePatq = fmap Patq . parse
+
+-- Padding option for rendering.
+data Padding =
+    Padding
+  | NoPadding
+  deriving Eq
+
+-- Spacing option for rendering.
+data Spacing =
+    LongSpacing
+  | ShortSpacing
+  deriving Eq
+
+-- General-purpose renderer.
+render' :: Padding -> Spacing -> BS.ByteString -> T.Text
+render' padding spacing bs =
       T.cons '~'
     . snd
     . BS.foldr alg (0 :: Int, mempty)
@@ -97,27 +182,29 @@ render' bs =
     alg val (idx, acc) =
       let syl = if even idx then suffix val else prefix val
           glue
-            | idx `mod` 8 == 0 = if idx == 0 then mempty else "--"
+            | idx `mod` 8 == 0 = if idx == 0 then mempty else dash
             | even idx         = "-"
             | otherwise        = mempty
       in  (succ idx, syl <> glue <> acc)
 
-    padded =
-      let len = BS.length bs
-      in  if   (odd len && len > 2) || len == 0
-          then BS.cons 0 bs
-          else bs
+    padded
+      | padCondition = BS.cons 0 bs
+      | otherwise    = bs
 
--- | Parse a \@p value existing as 'T.Text'.
---
---   >>> parse "~nidsut-tomdun"
---   Right ~nidsut-tomdun
---   > parse "~fipfes-fipfes-fipfes-doznec"
---   Right ~fipfes-fipfes-fipfes-doznec
---
-parse :: T.Text -> Either T.Text Patp
+    dash = case spacing of
+      LongSpacing  -> "--"
+      ShortSpacing -> "-"
+
+    padCondition =
+      let len = BS.length bs
+      in  case padding of
+            NoPadding -> len == 0
+            Padding   -> (odd len && len > 2) || len == 0
+
+-- General-purpose (non-strict) parser.
+parse :: T.Text -> Either T.Text BS.ByteString
 parse p =
-      fmap (Patp . snd)
+      fmap snd
     $ foldrM alg (0 :: Int, mempty) syls
   where
     alg syl (idx, acc) = do
