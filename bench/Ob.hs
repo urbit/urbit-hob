@@ -45,39 +45,39 @@ fromPatpGroup = bgroup "fromPatp" [
  ]
 
 renderGroup :: Benchmark
-renderGroup = bgroup "render" [
+renderGroup = bgroup "renderPatp" [
    bench "~zod" $
-     nf Ob.render (Ob.patp 0x0000)
+     nf Ob.renderPatp (Ob.patp 0x0000)
 
  , bench "~marzod" $
-     nf Ob.render (Ob.patp 0x0100)
+     nf Ob.renderPatp (Ob.patp 0x0100)
 
  , bench "~dapnep-ronmyl" $
-     nf Ob.render (Ob.patp 0x00010000)
+     nf Ob.renderPatp (Ob.patp 0x00010000)
 
  , bench "~fipfes-fipfes-dostec-risfen" $
-     nf Ob.render (Ob.patp 0xFFFFFFFFFFFFFFFF)
+     nf Ob.renderPatp (Ob.patp 0xFFFFFFFFFFFFFFFF)
 
  , bench "~fipfes-fipfes-fipfes-fipfes--fipfes-fipfes-fipfes-fipfes" $
-     nf Ob.render (Ob.patp 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)
+     nf Ob.renderPatp (Ob.patp 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)
  ]
 
 parseGroup :: Benchmark
-parseGroup = bgroup "parse" [
+parseGroup = bgroup "parsePatp" [
    bench "~zod" $
-     nf Ob.parse "~zod"
+     nf Ob.parsePatp "~zod"
 
  , bench "~marzod" $
-     nf Ob.parse "~marzod"
+     nf Ob.parsePatp "~marzod"
 
  , bench "~dapnep-ronmyl" $
-     nf Ob.parse "~dapnep-ronmyl"
+     nf Ob.parsePatp "~dapnep-ronmyl"
 
  , bench "~fipfes-fipfes-dostec-risfen" $
-     nf Ob.parse "~fipfes-fipfes-dostec-risfen"
+     nf Ob.parsePatp "~fipfes-fipfes-dostec-risfen"
 
  , bench "~fipfes-fipfes-fipfes-fipfes--fipfes-fipfes-fipfes-fipfes" $
-     nf Ob.parse "~fipfes-fipfes-fipfes-fipfes--fipfes-fipfes-fipfes-fipfes"
+     nf Ob.parsePatp "~fipfes-fipfes-fipfes-fipfes--fipfes-fipfes-fipfes-fipfes"
  ]
 
 main :: IO ()
