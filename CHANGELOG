@@ -1,5 +1,10 @@
 # Changelog
 
+- 0.3.0 (2019-09-20)
+    * Adds support for Urbit's @q encoding.  The API mirrors that of @p.
+    * Adds the useful 'clan' and 'sein' functions for determining a ship's
+      class and default parent.
+
 - 0.2.0 (2019-09-18)
     * Now uses Natural internally, and thus faithfully supports Hoon atoms of
       arbitrary size.
