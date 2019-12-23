@@ -128,7 +128,7 @@ fromPatq = C.roll . BS.reverse . unPatq
 --   >>> renderPatp (patp 15663360)
 --   "~nidsut-tomdun"
 renderPatp :: Patp -> T.Text
-renderPatp (Patp bs) = render' Padding LongSpacing bs
+renderPatp (Patp bs) = render Padding LongSpacing bs
 
 -- | Render a \@p value as 'T.Text'.
 --
@@ -137,7 +137,7 @@ renderPatp (Patp bs) = render' Padding LongSpacing bs
 --   >>> renderPatq (patq 15663360)
 --   "~mun-marzod"
 renderPatq :: Patq -> T.Text
-renderPatq (Patq bs) = render' NoPadding ShortSpacing bs
+renderPatq (Patq bs) = render NoPadding ShortSpacing bs
 
 -- | Parse a \@p value existing as 'T.Text'.
 --
@@ -172,8 +172,8 @@ data Spacing =
   deriving Eq
 
 -- General-purpose renderer.
-render' :: Padding -> Spacing -> BS.ByteString -> T.Text
-render' padding spacing bs =
+render :: Padding -> Spacing -> BS.ByteString -> T.Text
+render padding spacing bs =
       T.cons '~'
     . snd
     . BS.foldr alg (0 :: Int, mempty)
@@ -246,10 +246,10 @@ prefix = V.unsafeIndex prefixes . fromIntegral
 
 fromPrefix :: T.Text -> Either T.Text Word8
 fromPrefix syl = case V.findIndex (== syl) prefixes of
-    Nothing -> Left (msg syl)
+    Nothing -> Left msg
     Just x  -> Right (fromIntegral x :: Word8)
   where
-    msg s = "urbit-hob (fromPrefix): invalid prefix \"" <> s <> "\""
+    msg = "urbit-hob (fromPrefix): invalid prefix \"" <> syl <> "\""
 
 suffixes :: V.Vector T.Text
 suffixes = V.fromList
@@ -281,8 +281,8 @@ suffix = V.unsafeIndex suffixes . fromIntegral
 
 fromSuffix :: T.Text -> Either T.Text Word8
 fromSuffix syl = case V.findIndex (== syl) suffixes of
-    Nothing -> Left (msg syl)
+    Nothing -> Left msg
     Just x  -> Right (fromIntegral x :: Word8)
   where
-    msg s = "urbit-hob (fromSuffix): invalid suffix \"" <> s <> "\""
+    msg = "urbit-hob (fromSuffix): invalid suffix \"" <> syl <> "\""
 

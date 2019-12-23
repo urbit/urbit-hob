@@ -63,7 +63,7 @@ fynd = loop where
 --   Note that this has been adjusted from the reference paper in order to
 --   support some legacy behaviour.
 feis :: Word32 -> Word32
-feis = capFe 4 65535 65536 0xFFFFFFFF capF
+feis = capFe 4 0xFFFF 0x10000 0xFFFFFFFF capF
 
 -- | Reverse 'feis'.
 --
@@ -72,7 +72,7 @@ feis = capFe 4 65535 65536 0xFFFFFFFF capF
 --   Note that this has been adjusted from the reference paper in order to
 --   support some legacy behaviour.
 tail :: Word32 -> Word32
-tail = capFen 4 65535 65536 0xFFFFFFFF capF
+tail = capFen 4 0xFFFF 0x10000 0xFFFFFFFF capF
 
 -- | A PRF for j in [0, .., 3]
 capF :: Int -> Word32 -> Word32
