@@ -64,9 +64,9 @@ library
   hs-source-dirs:   lib
 
   if flag(release)
-    ghc-options:     -Wall -O2
+    ghc-options:     -Wall
   else
-    ghc-options:     -Wall -Werror -O1
+    ghc-options:     -Wall -Werror
 
   exposed-modules:
       Urbit.Ob
