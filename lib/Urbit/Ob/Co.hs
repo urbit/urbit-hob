@@ -55,7 +55,7 @@ import qualified Urbit.Ob.Ob as Ob (fein, fynd)
 --
 newtype Patp = Patp {
     unPatp :: BS.ByteString
-  } deriving (Eq, Generic)
+  } deriving (Eq, Ord, Generic)
 
 instance Show Patp where
   show = T.unpack . renderPatp
@@ -70,7 +70,7 @@ instance Show Patp where
 --
 newtype Patq = Patq {
     unPatq :: BS.ByteString
-  } deriving (Eq, Generic)
+  } deriving (Eq, Ord, Generic)
 
 instance Show Patq where
   show = T.unpack . renderPatq
