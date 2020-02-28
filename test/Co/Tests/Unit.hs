@@ -67,3 +67,14 @@ tests = do
 
       Co.renderPatq (Co.patq big_128_02) `shouldBe` patq_128_02
 
+  describe "parsePatp" $
+    it "yields an equivalent internal representation with patp for ~zod" $ do
+      let pzod = Co.parsePatp "~zod"
+          ezod = Co.patp 0
+      fmap (== ezod) pzod `shouldBe` Right True
+
+  describe "parsePatq" $
+    it "yields an equivalent internal representation with patq for ~zod" $ do
+      let pzod = Co.parsePatq "~zod"
+          ezod = Co.patq 0
+      fmap (== ezod) pzod `shouldBe` Right True
