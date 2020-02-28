@@ -10,6 +10,7 @@ category:       Urbit
 license:        MIT
 license-file:   LICENSE
 build-type:     Simple
+tested-with:    GHC == 8.6.5
 cabal-version:  >= 1.10
 description:
   Here you can primarily find functions for dealing with the \"patp\" and
