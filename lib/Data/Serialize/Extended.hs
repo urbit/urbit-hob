@@ -11,9 +11,12 @@ import Numeric.Natural (Natural)
 
 -- | Simple little-endian ByteString encoding for Naturals.
 unroll :: Natural -> BS.ByteString
-unroll = BS.pack . unfoldr step where
-  step 0 = Nothing
-  step i = Just (fromIntegral i, i `shiftR` 8)
+unroll nat = case nat of
+    0 -> BS.singleton 0
+    _ -> BS.pack (unfoldr step nat)
+  where
+    step 0 = Nothing
+    step i = Just (fromIntegral i, i `shiftR` 8)
 
 -- | Simple little-endian ByteString decoding for Naturals.
 roll :: BS.ByteString -> Natural
