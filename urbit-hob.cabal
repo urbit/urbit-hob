@@ -1,5 +1,5 @@
 name:           urbit-hob
-version:        0.3.1
+version:        0.3.2
 synopsis:       Hoon-style atom manipulation and printing functions
 homepage:       https://github.com/urbit/urbit-hob
 bug-reports:    https://github.com/urbit/urbit-hob/issues

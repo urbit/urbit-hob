@@ -1,5 +1,11 @@
 # Changelog
 
+- 0.3.2 (2020-02-28)
+    * Fixes a bug in Data.Serialize.Extended.unroll that led 0 to be encoded
+      as the empty ByteString instead of \NUL.  This could result in an
+      equality comparison error when a ~zod value gotten via 'patp' was
+      compared with one gotten via 'parsePatp'.
+
 - 0.3.1 (2020-01-06)
     * Adds 'Ord' instances for the 'Patp' and 'Patq' types.
 
