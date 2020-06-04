@@ -15,8 +15,8 @@
 -- Roughly analogous to the +co arm in hoon.hoon.
 
 module Urbit.Ob.Co (
-    Patp
-  , Patq
+    Patp(..)
+  , Patq(..)
 
   , patp
   , patq
