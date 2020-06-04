@@ -1,5 +1,5 @@
 name:           urbit-hob
-version:        0.3.2
+version:        0.3.3
 synopsis:       Hoon-style atom manipulation and printing functions
 homepage:       https://github.com/urbit/urbit-hob
 bug-reports:    https://github.com/urbit/urbit-hob/issues
@@ -10,7 +10,7 @@ category:       Urbit
 license:        MIT
 license-file:   LICENSE
 build-type:     Simple
-tested-with:    GHC == 8.6.5
+tested-with:    GHC == 8.6.5, GHC == 8.8.3
 cabal-version:  >= 1.10
 description:
   Here you can primarily find functions for dealing with the \"patp\" and

@@ -1,5 +1,11 @@
 # Changelog
 
+- 0.3.3 (2020-06-04)
+    * Exposes the constructors for the 'Patp' and 'Patq' types.  These were
+      previously hidden, but that can lead to inconvenience when working with
+      the 'Patq' type in particular, and there should be no invariants that
+      can be broken by exposing them anyway.
+
 - 0.3.2 (2020-02-28)
     * Fixes a bug in Data.Serialize.Extended.unroll that led 0 to be encoded
       as the empty ByteString instead of \NUL.  This could result in an
