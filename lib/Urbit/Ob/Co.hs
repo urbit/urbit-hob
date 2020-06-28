@@ -249,7 +249,7 @@ fromPrefix syl = case V.findIndex (== syl) prefixes of
     Nothing -> Left msg
     Just x  -> Right (fromIntegral x :: Word8)
   where
-    msg = "urbit-hob (fromPrefix): invalid prefix \"" <> syl <> "\""
+    msg = "(urbit-hob) bad parse: invalid prefix \"" <> syl <> "\""
 
 suffixes :: V.Vector T.Text
 suffixes = V.fromList
@@ -284,5 +284,5 @@ fromSuffix syl = case V.findIndex (== syl) suffixes of
     Nothing -> Left msg
     Just x  -> Right (fromIntegral x :: Word8)
   where
-    msg = "urbit-hob (fromSuffix): invalid suffix \"" <> syl <> "\""
+    msg = "(urbit-hob) bad parse: invalid suffix \"" <> syl <> "\""
 
