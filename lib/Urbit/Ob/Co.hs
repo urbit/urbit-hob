@@ -93,9 +93,9 @@ patp = Patp . BS.reverse . C.unroll . Ob.fein
 --
 --   >>> patq 0
 --   ~zod
---   >>> patp 256
+--   >>> patq 256
 --   ~marzod
---   >>> patp 65536
+--   >>> patq 65536
 --   ~nec-dozzod
 --   >>> patp 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 --   ~fipfes-fipfes-fipfes-fipfes-fipfes-fipfes-fipfes-fipfes
