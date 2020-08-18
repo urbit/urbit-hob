@@ -51,6 +51,9 @@ description:
   >>> Ob.sein nidsut
   ~marzod
 
+extra-source-files:
+  CHANGELOG
+
 source-repository head
   type: git
   location: https://github.com/urbit/urbit-hob
