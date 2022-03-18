@@ -52,3 +52,4 @@ Planet
 ## See also
 
 * [urbit-ob](https://github.com/urbit/urbit-ob) -- JavaScript bindings
+* [urbit-gob](https://github.com/deelawn/urbit-gob) -- Go bindings
