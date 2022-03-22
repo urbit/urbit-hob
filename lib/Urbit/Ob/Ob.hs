@@ -32,29 +32,24 @@ import Urbit.Ob.Muk (muk)
 
 -- | Conceal structure v3.
 fein :: (Integral a, Bits a) => a -> a
-fein = loop where
-  loop !pyn =
-    let lo  = pyn .&. 0xFFFFFFFF
-        hi  = pyn .&. 0xFFFFFFFF00000000
-        p32 = fromIntegral pyn :: Word32
-    in  if   pyn >= 0x10000 && pyn <= 0xFFFFFFFF
-        then 0x10000 + fromIntegral (feis (p32 - 0x10000))
-        else if   pyn >= 0x100000000 && pyn <= 0xFFFFFFFFFFFFFFFF
-             then hi .|. loop lo
-             else pyn
+fein = mach feis
 
 -- | Restore structure v3.
 fynd :: (Integral a, Bits a) => a -> a
-fynd = loop where
-  loop !cry =
-    let lo  = cry .&. 0xFFFFFFFF
-        hi  = cry .&. 0xFFFFFFFF00000000
-        c32 = fromIntegral cry :: Word32
-    in  if   cry >= 0x10000 && cry <= 0xFFFFFFFF
-        then 0x10000 + fromIntegral (tail (c32 - 0x10000))
-        else if   cry >= 0x100000000 && cry <= 0xFFFFFFFFFFFFFFFF
+fynd = mach tail
+
+-- | Sausage machine powering 'fein' and 'feis'.
+mach :: (Integral a, Bits a) => (Word32 -> Word32) -> a -> a
+mach f = loop where
+  loop !x =
+    let lo  = x .&. 0xFFFFFFFF
+        hi  = x .&. 0xFFFFFFFF00000000
+        x32 = fromIntegral x :: Word32
+    in  if   x >= 0x10000 && x <= 0xFFFFFFFF
+        then 0x10000 + fromIntegral (f (x32 - 0x10000))
+        else if   x >= 0x100000000 && x <= 0xFFFFFFFFFFFFFFFF
              then hi .|. loop lo
-             else cry
+             else x
 
 -- | Generalised Feistel cipher.
 --
@@ -189,5 +184,4 @@ fen r a b f m = loop r capL capR where
                   then (arr + a - (eff `mod` a)) `mod` a
                   else (arr + b - (eff `mod` b)) `mod` b
         in  loop (pred j) tmp ell
-
 
